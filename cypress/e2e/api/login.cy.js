@@ -1,14 +1,31 @@
-describe('Frontend - Login', () => { 
-    it('should successfully authenticate a valid user', () => { 
-        cy.createUser().then((user) => { 
-            cy.visit('/') 
-            cy.login(user.email, user.password)
-            
-            cy.contains('h1', `Bem Vindo ${user.nome}`) 
-                .should('be.visible') 
-            
-            cy.contains( 'Este é seu sistema para administrar seu ecommerce.' )
-                .should('be.visible') 
-            }) 
-        }) 
+describe('API - Login', () => {
+  it('should successfully authenticate a valid user', () => {
+    const user = {
+      nome: 'API User',
+      email: `api_${Date.now()}@teste.com`,
+      password: 'Teste@123',
+      administrador: 'true',
+    }
+
+    cy.request({
+      method: 'POST',
+      url: `${Cypress.expose('apiUrl')}/usuarios`,
+      body: user,
+    }).then(() => {
+      cy.request({
+        method: 'POST',
+        url: `${Cypress.expose('apiUrl')}/login`,
+        body: {
+          email: user.email,
+          password: user.password,
+        },
+      }).then((response) => {
+        expect(response.status).to.eq(200)
+        expect(response.body.message).to.eq('Login realizado com sucesso')
+        expect(response.body).to.have.property('authorization')
+        expect(response.body.authorization).to.be.a('string')
+        expect(response.body.authorization.length).to.be.greaterThan(0)
+      })
     })
+  })
+})

@@ -30,7 +30,6 @@ The test suite covers:
 * REST API
 * Git
 * GitHub
-* GitHub Actions
 
 ## Project Structure
 
